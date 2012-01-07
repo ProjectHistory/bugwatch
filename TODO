@@ -1,0 +1,11 @@
+TODO
+
+What percent of bugs fits in 10%?
+Find bug fix changes (Zendesk/git)
+Preload cache with largest files (by lines of code)
+
+FixCache
+  'hit' if bug-fixing commit's entity is present
+  'miss' fetch entity and nearby entities (spatial or new) into cache
+  hit rate = (# of hits / (# of hit + # of miss))
+
