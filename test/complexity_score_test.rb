@@ -28,12 +28,28 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+require './test_helper'
 
-gemspec
+class ComplexityScoreTest < Test::Unit::TestCase
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
+  test 'accumulated returns accumulated score' do
+    sut = Bugwatch::ComplexityScore.new('file', 10, 25)
+    assert_equal 15, sut.accumulated
+  end
+
+  test 'accumulated returns 0.0 if no scores' do
+    sut = Bugwatch::ComplexityScore.new('file', nil, nil)
+    assert_equal 0.0, sut.accumulated
+  end
+
+  test 'accumulated returns after score if before score is nil' do
+    sut = Bugwatch::ComplexityScore.new('file', nil, 100)
+    assert_equal 100, sut.accumulated
+  end
+
+  test 'accumulated returns negative before_score if after_score is nil' do
+    sut = Bugwatch::ComplexityScore.new('file', 100, nil)
+    assert_equal -100, sut.accumulated
+  end
+
 end

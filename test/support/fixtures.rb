@@ -28,12 +28,68 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+class MockCachingStrategy
 
-gemspec
+  attr_reader :store_call_args
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
+  def store(*args)
+    @store_call_args = args
+  end
+
+  def store_analysis(commit, key)
+
+  end
+
+  def imported
+    raise 'Stub this'
+  end
+
+  def analyzed(key)
+    raise 'Stub this'
+  end
+
+end
+
+class MockAnalyzer
+
+  attr_reader :call_args, :call_count
+
+  def initialize
+    @call_count = 0
+    @call_args = []
+  end
+
+  def call(commit)
+    @call_args << commit
+    @call_count += 1
+  end
+
+  def key
+    'key'
+  end
+
+end
+
+module GritFixtures
+
+  def create_commit(additional={})
+    stub('Grit::Commit', {
+                         :sha => 'XXX', :short_message => 'fixed bug', :tree => stub('Grit::Tree'),
+                         :author => stub('Grit::Actor', name: 'foo', email: 'testing@example.com'),
+                         :committer => stub('Grit::Actor', name: 'bar', email: 'bar@example.com'),
+                         :committed_date => DateTime.new(2010, 10, 10),
+                         :authored_date => DateTime.new(2011, 10, 10),
+                         :stats => stub('Grit::Stats', files: [['file.rb', 1, 2, 3]]),
+                         :diffs => [create_diff],
+    }.merge(additional))
+  end
+
+  def create_diff(file='file.rb', additionals={})
+    stub('Grit::Diff', {
+                        a_blob: stub('Grit::Blob', data: 'a_blob data'),
+                        b_blob: stub('Grit::Blob', data: ChangedDummyCode.blob),
+                        a_path: file, b_path: file, diff: ChangedDummyCode.diff
+    }.merge(additionals))
+  end
+
 end

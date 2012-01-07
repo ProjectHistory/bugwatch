@@ -28,12 +28,37 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+require './test_helper'
 
-gemspec
+class TagTest < Test::Unit::TestCase
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
+  attr_reader :grit_tag, :sut, :commit_date, :grit_commit
+
+  def setup
+    @commit_date = Date.new(2010, 10, 10)
+    @grit_commit = stub('Grit::Commit')
+    @grit_tag = stub('Grit::Tag', commit: grit_commit)
+    @sut = Bugwatch::Tag.new(@grit_tag)
+  end
+
+  test 'committed_date returns committed date of commit associated to tag' do
+    grit_commit.stubs(:committed_date).returns(commit_date)
+    assert_equal commit_date, sut.committed_date
+  end
+
+  test 'authored_date returns authored date of commit associated to tag' do
+    grit_commit.stubs(:authored_date).returns(commit_date)
+    assert_equal commit_date, sut.authored_date
+  end
+
+  test 'name gets name from grit' do
+    grit_tag.stubs(:name).returns('tag')
+    assert_equal 'tag', sut.name
+  end
+
+  test 'tag_date gets tag date from grit' do
+    grit_tag.stubs(:tag_date).returns(commit_date)
+    assert_equal commit_date, sut.tag_date
+  end
+
 end

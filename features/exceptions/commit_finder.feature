@@ -28,12 +28,45 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+Feature: As a developer
+  I want to match exceptions with liable commits
 
-gemspec
+  Background:
+    Given the last deploy revision is "AAA"
+    And I am analyzing "bugwatch"
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
-end
+  Scenario: Commit matches exception
+    Given I have a simple commit "AAA" modifying "file.rb"
+    When I get the following exception:
+      | type          | file    | line |
+      | NoMethodError | file.rb | 5    |
+    Then the liable commits should be:
+      | sha |
+      | AAA |
+
+  Scenario: Commit matches exception backtrace
+    Given I have a simple commit "AAA" modifying "file.rb"
+    When I get the following exception:
+      | type          | file     | line |
+      | NoMethodError | file2.rb | 5    |
+      |               | file3.rb | 5    |
+      |               | file4.rb | 5    |
+      |               | file.rb  | 5    |
+    Then the liable commits should be:
+      | sha |
+      | AAA |
+
+  Scenario: Matches only commits since last deploy
+    Given the deploy revision before last is "DDD"
+    And I have a simple commit "AAA" modifying "file.rb"
+    And I have a simple commit "BBB" modifying "file2.rb"
+    And I have a simple commit "CCC" modifying "file.rb"
+    And I have a simple commit "DDD" modifying "file.rb"
+    And I have a simple commit "EEE" modifying "file.rb"
+    When I get the following exception:
+      | type          | file    | line |
+      | NoMethodError | file.rb | 5    |
+    Then the liable commits should be:
+      | sha |
+      | AAA |
+      | CCC |

@@ -28,12 +28,47 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+Gem::Specification.new do |s|
+  s.name = 'bugwatch'
+  s.version = '0.1'
+  s.date = '2012-02-13'
 
-gemspec
+  s.summary = 'bugwatch'
+  s.description = 'SCM history mining and code analysis platform'
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
+  s.authors = ['Jacob Richardson']
+  s.email = 'jacobr@groupon.com'
+
+  s.require_paths = %w[lib]
+
+  s.add_dependency('grit', '2.5.0')
+  s.add_dependency('ruby_parser', '~> 3.0.1')
+  s.add_dependency('rugged', '0.16.2')
+
+  # = MANIFEST =
+  s.files = %w[
+    bugwatch.gemspec
+    lib/bugwatch.rb
+    lib/bugwatch/adapters.rb
+    lib/bugwatch/analysis.rb
+    lib/bugwatch/attrs.rb
+    lib/bugwatch/churn.rb
+    lib/bugwatch/commit.rb
+    lib/bugwatch/complexity_score.rb
+    lib/bugwatch/diff.rb
+    lib/bugwatch/diff_parser.rb
+    lib/bugwatch/exception_data.rb
+    lib/bugwatch/exception_tracker.rb
+    lib/bugwatch/file_adapters/ruby_file_adapter.rb
+    lib/bugwatch/flog_score.rb
+    lib/bugwatch/import.rb
+    lib/bugwatch/method_parser.rb
+    lib/bugwatch/repo.rb
+    lib/bugwatch/ruby_complexity.rb
+    lib/bugwatch/tag.rb
+    lib/bugwatch/tree.rb
+    vendor/flog/lib/flog.rb
+  ]
+  # = MANIFEST =
+
 end

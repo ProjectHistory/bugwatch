@@ -1,21 +1,21 @@
 # Copyright (c) 2013, Groupon, Inc.
 # All rights reserved.
-#
+# 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
-#
+# 
 # Redistributions of source code must retain the above copyright notice,
 # this list of conditions and the following disclaimer.
-#
+# 
 # Redistributions in binary form must reproduce the above copyright
 # notice, this list of conditions and the following disclaimer in the
 # documentation and/or other materials provided with the distribution.
-#
+# 
 # Neither the name of GROUPON nor the names of its contributors may be
 # used to endorse or promote products derived from this software without
 # specific prior written permission.
-#
+# 
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
 # IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 # TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
@@ -28,12 +28,23 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+require 'bugwatch/file_adapters/ruby_file_adapter'
+require 'bugwatch/ruby_complexity'
 
-gemspec
+module Bugwatch
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
+  Adapter = Struct.new(:file, :complexity)
+
+  @adapters = {
+      ruby: Adapter.new(RubyFileAdapter, RubyComplexity)
+  }
+
+  def self.add_adapter(name, file_adapter, complexity=nil)
+    @adapters.merge!(name => Adapter.new(file_adapter, complexity))
+  end
+
+  def self.adapters
+    @adapters
+  end
+
 end

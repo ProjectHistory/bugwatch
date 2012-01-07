@@ -28,12 +28,30 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+require './test_helper'
 
-gemspec
+class ExceptionDataTest < Test::Unit::TestCase
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
+  attr_reader :sut
+
+  def setup
+    @sut = Bugwatch::ExceptionData.new(:type => 'NoMethodError', :backtrace => [['file.rb', '5'], ['file2.rb', '10']])
+  end
+
+  test '#type' do
+    assert_equal 'NoMethodError', sut.type
+  end
+
+  test '#file' do
+    assert_equal 'file.rb', sut.file
+  end
+
+  test '#line' do
+    assert_equal 5, sut.line
+  end
+
+  test '#files' do
+    assert_equal %w(file.rb file2.rb), sut.files
+  end
+
 end

@@ -28,12 +28,33 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+require './test_helper'
 
-gemspec
+class MethodParserTests < Test::Unit::TestCase
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
+  attr_reader :sut
+
+  def setup
+    @sut = Bugwatch::MethodParser.new(@line_number)
+    @line_number = 1
+  end
+
+  test '#get_class_name returns class name if string' do
+    assert_equal 'DealsController', sut.get_class_name('DealsController')
+  end
+
+  test '#get_class_name returns single nested sexp' do
+    example = s(s(:const, :Admin), :DealsController)
+    assert_equal 'Admin::DealsController', sut.get_class_name(example)
+  end
+
+  test '#get_class_name returns double nested sexp' do
+    example = s(s(:colon2, s(:const, :Admin), :Deals), :NotesController)
+    assert_equal 'Admin::Deals::NotesController', sut.get_class_name(example)
+  end
+
+  test '#get_class_name returns really nested sexp' do
+    example = s(s(:colon2, s(:colon2, s(:const, :Admin), :Deals), :Discussions), :ItemsController)
+    assert_equal 'Admin::Deals::Discussions::ItemsController', sut.get_class_name(example)
+  end
 end

@@ -28,12 +28,35 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+require File.expand_path('./../test_helper', __FILE__)
+require 'support/fixtures'
 
-gemspec
+class ImporterTest < Test::Unit::TestCase
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
+  attr_reader :sha, :caching_strategy, :repo, :commit, :sut
+
+  def setup
+    @sha = 'xxx'
+    @caching_strategy = MockCachingStrategy.new
+    @repo = Bugwatch::Repo.new('repo_name', 'repo_url')
+    @commit = Bugwatch::Commit.new(sha: sha)
+    @sut = Bugwatch::Import.new(repo, caching_strategy)
+
+  end
+
+  test 'calls caching_strategy store for un-imported commits' do
+    repo.expects(:commit).with(sha).returns(commit)
+    repo.stubs(:commit_shas).with(sha).returns([sha])
+    caching_strategy.stubs(:imported).returns([])
+    sut.import(sha)
+    assert_equal [commit], caching_strategy.store_call_args
+  end
+
+  test 'does not store already imported commits' do
+    repo.stubs(:commit_shas).with(sha).returns([sha])
+    caching_strategy.stubs(:imported).returns([sha])
+    caching_strategy.expects(:store).never
+    sut.import(sha)
+  end
+
 end

@@ -28,12 +28,18 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+require './test_helper'
 
-gemspec
+class FlogBugTest < Test::Unit::TestCase
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
+  test 'iter with no args' do
+    buggy_code = <<-CODE
+it "breaks" do ||
+end
+    CODE
+    assert_nothing_raised("undefined method `first' for 0:Fixnum") do
+      Bugwatch::FlogScore.new([]).send(:score, buggy_code)
+    end
+  end
+
 end

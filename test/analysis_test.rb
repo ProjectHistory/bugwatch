@@ -28,12 +28,43 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+require File.expand_path('./../test_helper', __FILE__)
+require 'support/fixtures'
 
-gemspec
+class AnalysisTest < Test::Unit::TestCase
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
+  attr_reader :sut, :caching_strategy, :repo, :commit, :analyzer
+
+  def setup
+    @caching_strategy = MockCachingStrategy.new
+    @repo = Bugwatch::Repo.new('repo_name', 'repo_url')
+    @commit = Bugwatch::Commit.new(sha: 'SHA')
+    @sut = Bugwatch::Analysis.new(repo, caching_strategy)
+    @analyzer = MockAnalyzer.new
+  end
+
+  test 'calls analyzers for each un-analyzed commit' do
+    repo.expects(:commit).with(commit.sha).returns(commit)
+    caching_strategy.expects(:imported).returns([commit.sha])
+    caching_strategy.expects(:analyzed).with('key').returns([])
+    sut.analyze(analyzer)
+    assert_equal [commit], analyzer.call_args
+  end
+
+  test 'calls caching strategy store_analysis for each un-analyzed commit' do
+    repo.expects(:commit).with(commit.sha).returns(commit)
+    caching_strategy.expects(:imported).returns([commit.sha])
+    caching_strategy.expects(:analyzed).with('key').returns([])
+    caching_strategy.expects(:store_analysis).with(commit, analyzer.key)
+    sut.analyze(analyzer)
+  end
+
+  test 'skips already analyzed commits' do
+    repo.expects(:commit).with(commit.sha).never
+    caching_strategy.expects(:imported).returns([commit.sha])
+    caching_strategy.expects(:analyzed).with(analyzer.key).returns([commit.sha])
+    sut.analyze(analyzer)
+    assert_equal [], analyzer.call_args
+  end
+
 end

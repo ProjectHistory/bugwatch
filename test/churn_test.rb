@@ -28,12 +28,28 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+require './test_helper'
 
-gemspec
+class ChurnTest < Test::Unit::TestCase
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
+  test 'ruby returns total modified lines to ruby (non test) files' do
+    commit_stats = [Bugwatch::Commit::Stats.new('file.rb', 1, 1, 10), Bugwatch::Commit::Stats.new('file2.rb', 1, 1, 20),
+                    Bugwatch::Commit::Stats.new('file3.js', 1, 2, 40), Bugwatch::Commit::Stats.new('file_spec.rb', 4, 4, 50)]
+    sut = Bugwatch::Churn.new(commit_stats, Bugwatch::RubyFileAdapter)
+    assert_equal 30, sut.score
+  end
+
+  test 'ruby test churn returns total modified lines to ruby test files' do
+    commit_stats = [Bugwatch::Commit::Stats.new('file.rb', 1, 1, 10), Bugwatch::Commit::Stats.new('file_steps.rb', 1, 1, 20),
+                    Bugwatch::Commit::Stats.new('file3.feature', 1, 2, 40), Bugwatch::Commit::Stats.new('file_spec.rb', 4, 4, 50)]
+    sut = Bugwatch::Churn.new(commit_stats, Bugwatch::RubyFileAdapter)
+    assert_equal 70, sut.test_score
+  end
+
+  test 'ruby score returns 0 if no ruby files' do
+    commit_stats = [Bugwatch::Commit::Stats.new('file.js', 1, 1, 20)]
+    sut = Bugwatch::Churn.new(commit_stats, Bugwatch::RubyFileAdapter)
+    assert_equal 0, sut.score
+  end
+
 end

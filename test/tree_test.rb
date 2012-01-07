@@ -28,12 +28,27 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+require File.expand_path('./../test_helper', __FILE__)
 
-gemspec
+class TreeTest < Test::Unit::TestCase
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
+  def get_blob(name, size)
+    blob = Grit::Blob.new
+    blob.stubs(:name).returns(name)
+    blob.stubs(:size).returns(size)
+    blob
+  end
+
+  def tree_contents
+    tree_with_blob = Grit::Tree.new
+    tree_with_blob.stubs(:contents).returns([get_blob('file1.rb', 20)])
+    [tree_with_blob, get_blob('file2.rb', 10), get_blob('file3.rb', 10)]
+  end
+
+  test 'ruby_files walks tree for blobs' do
+    grit_tree = stub('Grit::Tree', contents: tree_contents)
+    sut = Bugwatch::Tree.new(grit_tree)
+    assert_equal %w(file1.rb file2.rb file3.rb), sut.ruby_files.map(&:file).sort
+  end
+
 end

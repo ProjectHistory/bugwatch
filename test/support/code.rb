@@ -28,12 +28,86 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-source :rubygems
+class ChangedDummyCode
+  def self.blob
+    %q{class Difference
 
-gemspec
+    def test_method
+      difference = lambda {|x, y| x - y}
+      difference_by_5 = lambda {|x| difference.call(x, 5)}
+    end
 
-group :test do
-  gem 'cucumber'
-  gem 'test-unit'
-  gem 'mocha'
+  end}
+  end
+
+  def self.diff
+    %q{
+    --- a/file1.rb
+    +++ b/file1.rb
+    @@ -1,7 +1,8 @@
+     class Difference
+
+       def test_method
+    -    # implement this later
+    +    difference = lambda {|x, y| x - y}
+    +    difference_by_5 = lambda {|x| difference.call(x, 5)}
+       end
+
+     end
+    }
+  end
+end
+
+def added_dummy_code
+  %q{class Difference
+
+  def some_method(name)
+    if name.start_with?("J")
+      puts "You are awesome"
+    else
+      puts "thanks for trying"
+    end
+  end
+
+  def get_difference_by_5
+    difference = lambda {|x, y| x - y}
+    difference_by_5 = lambda {|x| difference.call(x, 5)}
+  end
+
+end}
+end
+
+def class_level_dummy_code
+  %q{class Difference
+
+  attr_reader :foo
+
+  def some_method(name)
+    if name.start_with?("J")
+      puts "You are awesome"
+    else
+      puts "thanks for trying"
+    end
+  end
+
+  def get_difference_by_5
+    difference = lambda {|x, y| x - y}
+    difference_by_5 = lambda {|x| difference.call(x, 5)}
+  end
+
+end}
+end
+
+def small_file_dummy_code
+  %q{class Test
+
+  def addition(num1, num2)
+    num1 + num2
+  end
+
+  def subtraction(num1, num2)
+    num1 - num2
+  end
+
+end}
 end

@@ -1,2 +1,7 @@
 .idea
 .bundle
+repos/*
+cache/*
+config/mail.json
+test/integration/*
+*.gem
